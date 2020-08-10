@@ -1,5 +1,8 @@
 import logging
 import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 class Config:
     SECRET_KEY = 'a-not-so-secret-key-000-!!!'
@@ -13,18 +16,19 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     # database
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
-
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL')
-    STORMPATH_APPLICATION = 'photog_test'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = False
 
-
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    DEBUG = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
 
 config = {
     'development': DevelopmentConfig,

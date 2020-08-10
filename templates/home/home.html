@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h1>{% block title %}Home{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1>hello 
+    {% for u in user %}
+    {{u.username}}
+    {% endfor %}
+</h1>
+{% endblock %}

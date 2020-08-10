@@ -2,29 +2,27 @@ import os
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from overlearn import settings
 
 db = SQLAlchemy()
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../db.sqlite3'
+    app.config.from_object(settings.DevelopmentConfig)
     db.init_app(app)
 
+    # import models to be created in the database
     from user.models import User
 
     with app.app_context():
         db.create_all()
 
+    # import blueprints and register them
+    from .views import home as home_bp
+    app.register_blueprint(home_bp)
     from user import user as user_bp
     app.register_blueprint(user_bp)
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('settings.py', silent=True)
-    else:
-        # Load the test config if passed in
-        app.config.from_mapping(test_config)
-
     return app
+
