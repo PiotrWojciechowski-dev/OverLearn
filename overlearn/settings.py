@@ -1,11 +1,13 @@
 import logging
 import os
 from dotenv import load_dotenv, find_dotenv
+import secrets
+from passlib.hash import bcrypt, pbkdf2_sha512
+from zxcvbn import zxcvbn
 
 load_dotenv(find_dotenv())
 
 class Config:
-    SECRET_KEY = 'a-not-so-secret-key-000-!!!'
     DEBUG = True
     TESTING = False
 
@@ -15,15 +17,20 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SECRET_KEY = 'thisisasecret'
     # database
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # security
+    SECURITY_PASSWORD_SALT = 'thisisasecretsalt'
 
 class TestingConfig(Config):
     TESTING = True
+    # Database
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    WTF_CSRF_ENABLED = False
+    # Security
+
 
 class ProductionConfig(Config):
     DEBUG = False
