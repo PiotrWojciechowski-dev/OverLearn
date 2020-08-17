@@ -11,7 +11,7 @@
     <a href="/">Home</a>
     <a href="{{ url_for('user.register') }}">Sign Up</a>
     <a href="{{ url_for('security.login') }}">Log In</a>
-    <a href="{{ url_for('user.profile') }}">Profile</a>
+    <a href="{{ url_for('user.profile', username=user.username ) }}">Profile</a>
     {% block content %}
     {% endblock %}
 </body>

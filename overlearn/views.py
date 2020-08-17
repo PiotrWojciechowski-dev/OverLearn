@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, \
+current_app, url_for
 from overlearn.user.models import User
 from overlearn import create_app, db
 from flask_login import current_user
@@ -21,7 +22,7 @@ def has_no_empty_params(rule):
 def site_map():
     import json
     links = []
-    for rule in app.url_map.iter_rules():
+    for rule in current_app.url_map.iter_rules():
         # Filter out rules we can't navigate to in a browser
         # and rules that require parameters
         if "GET" in rule.methods and has_no_empty_params(rule):

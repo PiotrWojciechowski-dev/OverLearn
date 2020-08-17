@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, current_app
 from flask_login import current_user, login_required, login_user
 from . import user
 from .models import User
@@ -6,6 +6,7 @@ from .forms import RegistrationForm
 from overlearn import db, security
 from flask_security.utils import hash_password
 from flask_security import anonymous_user_required
+
 
 @user.route('/register', methods=('GET', 'POST'))
 @anonymous_user_required
@@ -21,8 +22,8 @@ def register():
         return redirect('/profile')
     return render_template('user/register.html', form=form)
 
-@user.route('/profile', methods=('GET', 'POST'))
+@user.route('/profile/<username>', methods=('GET', 'POST'))
 @login_required
-def profile():
+def profile(username):
     user = current_user
     return render_template('user/profile.html', user=user)
