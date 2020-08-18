@@ -19,7 +19,7 @@ def register():
             password=hash_password(request.form['password']),
         )
         db.session.commit()
-        return redirect('/profile')
+        return redirect((url_for('user.profile', username=current_user)))
     return render_template('user/register.html', form=form)
 
 @user.route('/profile/<username>', methods=('GET', 'POST'))
