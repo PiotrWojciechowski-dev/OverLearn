@@ -7,16 +7,15 @@ from zxcvbn import zxcvbn
 
 load_dotenv(find_dotenv(), verbose=True, override=True)
 
-name='discord'
-client_id='745718221692469258'
-client_secret='s2YbCr9Ks0ik4HbelwUDeg-UJ2GL6M-U'
-api_base_url='https://discord.com/api'
-userinfo_endpoint='https://discordapp.com/api/users/%40me'
-access_token_url='https://discord.com/api/oauth2/token'
-authorize_url='https://discord.com/api/oauth2/authorize'
-redirect_uri = 'http://127.0.0.1:5000/authorize'
-token_url = 'https://discordapp.com/api/oauth2/token'
-scope = ['identify', 'email']
+# Discord 
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+API_BASE_URL = os.getenv('API_BASE_URL')
+ACCESS_TOKEN_URL = os.getenv('ACCESS_TOKEN_URL')
+AUTHORIZE_URL = os.getenv('AUTHORIZE_URL')
+SCOPE = ['identify', 'email', 'guilds', 'guilds.join']
+REDIRECT_URI = os.getenv('REDIRECT_URI')
+TOKEN_URL = os.getenv('TOKEN_URL')
 
 class Config:
     DEBUG = True
@@ -29,8 +28,6 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = os.getenv('SECRET_KEY')
-    DISCORD_CLIENT_ID = '745718221692469258'
-    DISCIRD_CLIENT_SECRETE = 's2YbCr9Ks0ik4HbelwUDeg-UJ2GL6M-U'
     # database
     SQLALCHEMY_DATABASE_URI = 'sqlite:///../db.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

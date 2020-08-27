@@ -6,8 +6,10 @@ from .models import User
 from .forms import RegistrationForm
 from overlearn import db, security, oauth, settings
 from flask_security.utils import hash_password
-from flask_security import anonymous_user_required, LoginForm, url_for_security
+from flask_security import ( anonymous_user_required, 
+                            LoginForm, url_for_security )
 from authlib.integrations.requests_client import OAuth2Session
+import secrets
 
 @user.route('/register', methods=('GET', 'POST'))
 @anonymous_user_required
@@ -30,38 +32,43 @@ def login_context():
         'login_user_form': LoginForm(),
     }
 
-@user.route('/login')
+@user.route('/logins')
 def login():
-    oauth = OAuth2Session(settings.client_id, redirect_uri=settings.redirect_uri, scope=settings.scope, client_secret=settings.client_secret)
-    login_url, state = oauth.create_authorization_url(settings.authorize_url)
+    oauth = OAuth2Session(settings.CLIENT_ID, redirect_uri=settings.REDIRECT_URI, scope=settings.SCOPE, client_secret=settings.CLIENT_SECRET)
+    login_url, state = oauth.create_authorization_url(settings.AUTHORIZE_URL)
     session['state'] = state
     return render_template('security/login_user.html', login_url=login_url)
-'''
-@user.route('/discord_login')
-def discord_login():
-    redirect_uri = url_for('user.authorize', _external=True)
-    return oauth.discord.authorize_redirect(redirect_uri)
-'''
+
 @user.route('/authorize')
 def authorize():
-    discord = OAuth2Session(settings.client_id, redirect_uri=settings.redirect_uri, state=session['state'], scope=settings.scope)
+    discord = OAuth2Session(settings.CLIENT_ID, redirect_uri=settings.REDIRECT_URI, scope=settings.SCOPE, client_secret=settings.CLIENT_SECRET)
     token = discord.fetch_token(
-        settings.token_url,
-        client_secret=settings.client_secret,
+        settings.TOKEN_URL,
+        client_secret=settings.CLIENT_SECRET,
         authorization_response=request.url,
     )
+    # set token to session and create a user using the API
     session['discord_token'] = token
-    print(session)
-    # do something with the token and profile
-
-    #return redirect((url_for('user.profile', username=username)))
-    return redirect((url_for('home.index')))
+    response = discord.get(settings.API_BASE_URL + '/users/@me')
+    discord_user = response.json()
+    user = User.query.filter_by(email=discord_user['email']).first()
+    if not user:
+        user = User(
+            username=discord_user['username'],
+            password=hash_password(secrets.token_urlsafe()),
+            email=discord_user['email'],
+            active=True,
+        )
+        db.session.add(user)
+        db.session.commit()
+    login_user(user, True)
+    return redirect((url_for('user.profile', username=discord_user['username'])))
 
 @user.route('/profile/<username>', methods=('GET', 'POST'))
 @login_required
 def profile(username):
     user = current_user
-    token = oauth.discord.request()
-    print(token)
-    response = 'https://discord.com/api' + '/users/@me'
-    return render_template('user/profile.html', user=user, response=response)
+    guild_id = '747478996513456129'
+    discord = OAuth2Session(settings.CLIENT_ID, token=session['discord_token'])
+    response = discord.get(settings.API_BASE_URL + '/users/@me')
+    return render_template('user/profile.html', user=user, response=response.json())
